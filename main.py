@@ -1,11 +1,13 @@
 import json
 import xml.etree.ElementTree as et
+from dataclasses import dataclass, asdict
 
+
+@dataclass
 class Song:
-    def __init__(self, song_id, title, artist):
-        self.song_id = song_id
-        self.title = title
-        self.artist = artist
+    song_id: str
+    title: str
+    artist: str
 
 def serialize(song, data_format):
     serializer_product = _get_serializer(data_format)
@@ -29,9 +31,7 @@ class _JSONSerializer:
         self.song = song
 
     def __str__(self):
-        return json.dumps({"id": self.song.song_id, 
-                           "title": self.song.title, 
-                           "artist": self.song.artist})
+        return json.dumps(asdict(self.song))
 
 class _XMLSerializer:
     def __init__(self, song):
