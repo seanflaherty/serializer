@@ -9,10 +9,17 @@ class Song:
     title: str
     artist: str
 
-def serialize(song, data_format):
-    serializer_product = _get_serializer(data_format)
-    return str(serializer_product(song))
+    def use_product(self, product):
+        product.start_object("song", self.song_id)
+        product.add_property("title", self.title)
+        product.add_property("artist", self.artist)
 
+def serialize(object_to_serialize, data_format):
+    serializer_product = _get_serializer(data_format)
+    my_product = serializer_product()
+    object_to_serialize.use_product(my_product)
+    object_to_serialize.use_product(my_product)
+    return str(my_product)
 
 # creator
 
@@ -27,23 +34,33 @@ def _get_serializer(data_format):
 # products
 
 class _JSONSerializer:
-    def __init__(self, song):
-        self.song = song
+    def __init__(self):
+        self._current_object = None
+
+    def start_object(self, object_name, object_id):
+        self._current_object = {"id": object_id}
+
+    def add_property(self, name, value):
+        self._current_object[name] = value
 
     def __str__(self):
-        return json.dumps(asdict(self.song))
+        return json.dumps(self._current_object)
 
 class _XMLSerializer:
-    def __init__(self, song):
-        self.song = song
-        self.song_info = et.Element("song", attrib={"id": song.song_id})
-        self.title = et.SubElement(self.song_info, "title")
-        self.title.text = song.title
-        self.artist = et.SubElement(self.song_info, "artist")
-        self.artist.text = song.artist
+    def __init__(self):
+        self._item = None
+
+    def start_object(self, object_name, object_id):
+        self._item = et.Element(object_name, attrib={"id": object_id})
+        
+    def add_property(self, name, value):
+        prop = et.SubElement(self._item, name)
+        prop.text = value
     
     def __str__(self):
-        return et.tostring(self.song_info, encoding="unicode")
+        return et.tostring(self._item, encoding="unicode")
+    
+# try it out
 my_song = Song("1", "Hammer", "Lorde")
 print(serialize(my_song, "XML"))
 print(serialize(my_song, "JSON"))
