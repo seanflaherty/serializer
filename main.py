@@ -15,9 +15,7 @@ class Song:
         product.add_property("artist", self.artist)
 
 def serialize(object_to_serialize, data_format):
-    serializer_product = _get_serializer(data_format)
-    my_product = serializer_product()
-    object_to_serialize.use_product(my_product)
+    my_product = _get_serializer(data_format)
     object_to_serialize.use_product(my_product)
     return str(my_product)
 
@@ -25,9 +23,9 @@ def serialize(object_to_serialize, data_format):
 
 def _get_serializer(data_format):
     if data_format == "JSON":
-       return _JSONSerializer
+       return _JSONSerializer()
     elif data_format == "XML":
-        return _XMLSerializer
+        return _XMLSerializer()
     else:
         raise ValueError(data_format)
 
