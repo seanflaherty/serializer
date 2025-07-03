@@ -29,17 +29,32 @@ class Movie:
 
 def serialize(object_to_serialize, data_format):
     creator = SerializerCreator()
-    my_product = creator.get_serializer(data_format)
+    my_product = creator.factory_method(data_format)
     object_to_serialize.use_product(my_product)
     print(creator)
     return str(my_product)
 
 # creator
-class SerializerCreator:
+
+class CreatorBluePrint(ABC):
+    @abstractmethod
+    def factory_method(self):
+        pass
+class SerializationBluePrint(ABC):
+
+    @abstractmethod
+    def start_object(self):
+        pass
+
+    @abstractmethod
+    def add_property(self):
+        pass
+
+class SerializerCreator(CreatorBluePrint):
     def __init__(self):
         self.data_format = None
 
-    def get_serializer(self, data_format):
+    def factory_method(self, data_format):
         self.data_format = data_format
         if data_format == "JSON":
             return _JSONSerializer()
@@ -55,14 +70,6 @@ class SerializerCreator:
         return f"""Here is your item in {self.data_format} format:"""
     
 # products
-class SerializationBluePrint(ABC):
-    @abstractmethod
-    def start_object(self):
-        pass
-
-    @abstractmethod
-    def add_property(self):
-        pass
 
 class _JSONSerializer(SerializationBluePrint):
     def __init__(self):
