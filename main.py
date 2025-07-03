@@ -14,6 +14,19 @@ class Song:
         product.add_property("title", self.title)
         product.add_property("artist", self.artist)
 
+@dataclass
+class Movie:
+    movie_id: str
+    title: str
+    director: str
+    running_time: int = 0  # in minutes
+
+    def use_product(self, product):
+        product.start_object("movie", self.movie_id)
+        product.add_property("title", self.title)
+        product.add_property("director", self.director)
+        product.add_property("running_time", str(self.running_time))
+
 def serialize(object_to_serialize, data_format):
     my_product = _get_serializer(data_format)
     object_to_serialize.use_product(my_product)
@@ -59,7 +72,13 @@ class _XMLSerializer:
         return et.tostring(self._item, encoding="unicode")
     
 # try it out
+
+# song
 my_song = Song("1", "Hammer", "Lorde")
 print(serialize(my_song, "XML"))
 print(serialize(my_song, "JSON"))
 
+# movie
+my_movie = Movie("2", "Dune 2", "Denis Villeneuve", 166)
+print(serialize(my_movie, "XML"))
+print(serialize(my_movie, "JSON"))
