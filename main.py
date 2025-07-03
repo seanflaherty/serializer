@@ -28,20 +28,32 @@ class Movie:
         product.add_property("running_time", str(self.running_time))
 
 def serialize(object_to_serialize, data_format):
-    my_product = _get_serializer(data_format)
+    creator = SerializerCreator()
+    my_product = creator.get_serializer(data_format)
     object_to_serialize.use_product(my_product)
+    print(creator)
     return str(my_product)
 
 # creator
+class SerializerCreator:
+    def __init__(self):
+        self.data_format = None
 
-def _get_serializer(data_format):
-    if data_format == "JSON":
-       return _JSONSerializer()
-    elif data_format == "XML":
-        return _XMLSerializer()
-    else:
-        raise ValueError(data_format)
-
+    def get_serializer(self, data_format):
+        self.data_format = data_format
+        if data_format == "JSON":
+            return _JSONSerializer()
+        elif data_format == "XML":
+            return _XMLSerializer()
+        else:
+            raise ValueError(data_format)
+        
+    def __repr__(self):
+        return f"SerializerCreator(data_format={self.data_format})"
+    
+    def __str__(self):
+        return f"""Here is your item in {self.data_format} format:"""
+    
 # products
 
 class _JSONSerializer:
