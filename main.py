@@ -1,5 +1,6 @@
 import json
 import xml.etree.ElementTree as et
+import yaml
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 
@@ -64,6 +65,8 @@ class SerializerCreator(CreatorBluePrint):
             return _JSONSerializer()
         elif data_format == "XML":
             return _XMLSerializer()
+        elif data_format == "YAML":
+            return _YAMLSerializer()
         else:
             raise ValueError(data_format)
         
@@ -102,14 +105,21 @@ class _XMLSerializer(SerializationBluePrint):
     def __str__(self):
         return et.tostring(self._item, encoding="unicode")
     
+class _YAMLSerializer(_JSONSerializer):
+    def __str__(self):
+        return yaml.dump(self._current_object)
+    
 # try it out
 
 # song
 my_song = Song("1", "Hammer", "Lorde")
 print(serialize(my_song, "XML"))
 print(serialize(my_song, "JSON"))
+print(serialize(my_song, "YAML"))
 
 # movie
 my_movie = Movie("2", "Dune 2", "Denis Villeneuve", 166)
 print(serialize(my_movie, "XML"))
 print(serialize(my_movie, "JSON"))
+print(serialize(my_movie, "JSON"))
+print(serialize(my_movie, "YAML"))
