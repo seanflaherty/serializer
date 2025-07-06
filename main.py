@@ -33,7 +33,6 @@ class Movie(ClientBluePrint):
         product.add_property("running_time", str(self.running_time))
 
 def serialize(object_to_serialize, data_format):
-    creator = SerializerCreator()
     my_product = creator.factory_method(data_format)
     object_to_serialize.use_product(my_product)
     print(creator)
@@ -44,6 +43,9 @@ def serialize(object_to_serialize, data_format):
 class CreatorBluePrint(ABC):
     @abstractmethod
     def factory_method(self):
+        pass
+    @abstractmethod
+    def register_format(self):
         pass
 class SerializationBluePrint(ABC):
 
@@ -57,18 +59,18 @@ class SerializationBluePrint(ABC):
 
 class SerializerCreator(CreatorBluePrint):
     def __init__(self):
+        self._products = dict()
         self.data_format = None
+
+    def register_format(self, data_format, product):
+        self._products[data_format] = product
 
     def factory_method(self, data_format):
         self.data_format = data_format
-        if data_format == "JSON":
-            return _JSONSerializer()
-        elif data_format == "XML":
-            return _XMLSerializer()
-        elif data_format == "YAML":
-            return _YAMLSerializer()
-        else:
-            raise ValueError(data_format)
+        product = self._products.get(data_format)
+        if not product:
+            raise ValueError(f"Unsupported data format: {data_format}")
+        return product()
         
     def __repr__(self):
         return f"SerializerCreator(data_format={self.data_format})"
@@ -108,9 +110,13 @@ class _XMLSerializer(SerializationBluePrint):
 class _YAMLSerializer(_JSONSerializer):
     def __str__(self):
         return yaml.dump(self._current_object)
-    
-# try it out
+# register
+creator = SerializerCreator()
+creator.register_format("JSON", _JSONSerializer)
+creator.register_format("XML", _XMLSerializer)
+creator.register_format("YAML", _YAMLSerializer)
 
+# try it out
 # song
 my_song = Song("1", "Hammer", "Lorde")
 print(serialize(my_song, "XML"))
@@ -120,6 +126,5 @@ print(serialize(my_song, "YAML"))
 # movie
 my_movie = Movie("2", "Dune 2", "Denis Villeneuve", 166)
 print(serialize(my_movie, "XML"))
-print(serialize(my_movie, "JSON"))
 print(serialize(my_movie, "JSON"))
 print(serialize(my_movie, "YAML"))
