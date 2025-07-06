@@ -3,8 +3,12 @@ import xml.etree.ElementTree as et
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 
+class ClientBluePrint(ABC):
+    @abstractmethod
+    def use_product(self):
+        pass
 @dataclass
-class Song:
+class Song(ClientBluePrint):
     song_id: str
     title: str
     artist: str
@@ -15,7 +19,7 @@ class Song:
         product.add_property("artist", self.artist)
 
 @dataclass
-class Movie:
+class Movie(ClientBluePrint):
     movie_id: str
     title: str
     director: str
